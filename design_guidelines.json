@@ -1,0 +1,98 @@
+{
+  "theme": "dark",
+  "archetype": "Archetype 5: Jewel & Luxury / Editorial Minimalist",
+  "mood": "Cinematic, professional, high-end editorial, precise, Swiss-inspired.",
+  "colors": {
+    "background": "#0A0A0A",
+    "surface": "#121212",
+    "surface_glass": "rgba(10, 10, 10, 0.7)",
+    "primary": "#F5F5F0",
+    "secondary": "#8C8C8C",
+    "accent": "#E5E5E5",
+    "border": "#2A2A2A",
+    "text_main": "#F5F5F0",
+    "text_muted": "#8C8C8C",
+    "text_inverse": "#0A0A0A"
+  },
+  "typography": {
+    "headings": {
+      "family": "Cormorant Garamond, serif",
+      "weights": ["300", "400", "500", "600"],
+      "usage": "H1, H2, H3. Use italics for emphasis in select words to create an editorial feel. letter-spacing: tracking-tight.",
+      "google_font": "Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400"
+    },
+    "body": {
+      "family": "Outfit, sans-serif",
+      "weights": ["300", "400"],
+      "usage": "Paragraphs, navigation, buttons, subtitles.",
+      "google_font": "Outfit:wght@300;400"
+    },
+    "mono": {
+      "family": "JetBrains Mono, monospace",
+      "weights": ["400"],
+      "usage": "Used for stats, timecodes, labels, or overlines. Uppercase and wide tracking (tracking-[0.2em]).",
+      "google_font": "JetBrains+Mono:wght@400"
+    }
+  },
+  "spacing_and_layout": {
+    "philosophy": "Generous Spacing (py-24 to py-32 for sections) combined with sharp, tight grids.",
+    "container": "Max width 1440px, padding px-6 md:px-12.",
+    "grid_strategy": "MODE A: THE TETRIS GRID. Asymmetrical bento grid for portfolio items. Mix col-span-8, col-span-4 to avoid boring square walls.",
+    "borders_and_radii": "rounded-none everywhere. Sharp corners emphasize the cinematic frame and print magazine aesthetic."
+  },
+  "visual_enhancers": {
+    "textures": "CSS noise/grain overlay spanning the entire site (opacity 0.03 to 0.05). Creates a 35mm film feel.",
+    "surfaces": "GRID BORDERS for services section (border-r, border-b on grid items). No soft drop shadows.",
+    "motion": "Lenis smooth scroll is MANDATORY. Slow, sophisticated fade-ins on scroll (Framer Motion). Reveal animations via clip-path.",
+    "icons": "lucide-react with stroke-width 1 or 1.5. Keep them delicate."
+  },
+  "sections_strategy": {
+    "header": "Crystal Glassmorphism over deep black (backdrop-blur-xl bg-black/60). Border-b border-white/10.",
+    "hero": "Massive typography. 'Guildwen MAROT' + 'EditGuil'. Layout: Left-aligned large text, with a subtle timecode or cinematic metadata floating on the right. Dark cinematic background overlay.",
+    "showreel": "Full-width edge-to-edge container (or max-w-7xl with sharp borders). Include a large play button icon.",
+    "portfolio": "Tetris grid. Images start grayscale and turn color on hover, OR scale slightly under a hidden overflow container.",
+    "services": "Grid borders pattern (1px border between items). Minimalist, heavy reliance on typography rather than icons.",
+    "stats": "Massive numbers in Cormorant Garamond (e.g., text-7xl), subtitles in JetBrains Mono.",
+    "contact": "Form inputs should be brutalist: no background, just a border-bottom (border-border focus:border-primary). Solid primary button."
+  },
+  "media": {
+    "images": [
+      {
+        "category": "hero_bg",
+        "url": "https://images.unsplash.com/photo-1536240478700-b869070f9279?q=80&w=2000&auto=format&fit=crop",
+        "description": "Dark cinematic abstract texture"
+      },
+      {
+        "category": "editor_portrait",
+        "url": "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=1000&auto=format&fit=crop",
+        "description": "Professional creative director portrait"
+      },
+      {
+        "category": "portfolio_thumb_1",
+        "url": "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000&auto=format&fit=crop",
+        "description": "YouTube creative editing thumbnail placeholder"
+      },
+      {
+        "category": "portfolio_thumb_2",
+        "url": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1000&auto=format&fit=crop",
+        "description": "Cyber/gaming video thumbnail placeholder"
+      },
+      {
+        "category": "portfolio_thumb_3",
+        "url": "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=1000&auto=format&fit=crop",
+        "description": "Cinematic vlog thumbnail placeholder"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Use pure HTML/Tailwind for layout to achieve the strict asymmetric grid and editorial typography. Do NOT rely on pre-built generic cards.",
+    "Implement Lenis for smooth scrolling.",
+    "Use framer-motion for elegant, slow reveal animations.",
+    "Ensure all fonts are imported correctly from Google Fonts (Cormorant Garamond, Outfit, JetBrains Mono).",
+    "Apply 'rounded-none' strictly across the entire app to maintain the Swiss/Brutalist editorial look.",
+    "Include a global fixed noise overlay div (pointer-events-none) for the cinematic film grain.",
+    "For the contact form, use Shadcn but override styles: background transparent, border-0 border-b border-border rounded-none, ring-0 focus-visible:ring-0 focus-visible:border-primary.",
+    "Buttons should be completely square (rounded-none).",
+    "Add data-testid attributes to all interactive elements."
+  ]
+}
