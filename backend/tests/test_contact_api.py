@@ -84,18 +84,7 @@ class TestContact:
         })
         assert r.status_code == 422
 
-    def test_list_contacts_contains_created(self, client):
-        # Give Mongo a beat
-        time.sleep(0.5)
+    def test_public_list_endpoint_removed(self, client):
+        # Public /api/contacts removed in admin iteration — now only /api/admin/contacts (auth)
         r = client.get(f"{API}/contacts")
-        assert r.status_code == 200, r.text
-        rows = r.json()
-        assert isinstance(rows, list)
-        # No _id leakage from Mongo
-        for row in rows[:5]:
-            assert "_id" not in row
-        # Created contact persisted
-        created_id = getattr(pytest, "created_contact_id", None)
-        if created_id:
-            ids = [row.get("id") for row in rows]
-            assert created_id in ids, "Created contact not found in /api/contacts"
+        assert r.status_code in (401, 404, 405), r.text

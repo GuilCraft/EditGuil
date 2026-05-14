@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
+import { useSection } from "@/lib/content";
 
 const links = [
   { href: "#showreel", label: "Showreel" },
@@ -11,6 +12,7 @@ const links = [
 ];
 
 export default function Header() {
+  const hero = useSection("hero");
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [time, setTime] = useState("");
@@ -31,26 +33,20 @@ export default function Header() {
     };
   }, []);
 
+  const pseudo = hero?.pseudo?.replace(/^\[|\]$/g, "") || "EditGuil";
+
   return (
     <header
       data-testid="site-header"
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? "bg-black/70 backdrop-blur-xl border-b border-white/10"
-          : "bg-transparent"
+        scrolled ? "bg-black/70 backdrop-blur-xl border-b border-white/10" : "bg-transparent"
       }`}
     >
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
-        <a
-          href="#top"
-          data-testid="header-logo"
-          className="flex items-center gap-3 group"
-        >
-          <span className="font-mono-label text-[10px] text-muted-foreground rec-dot">
-            ● REC
-          </span>
+        <a href="#top" data-testid="header-logo" className="flex items-center gap-3 group">
+          <span className="font-mono-label text-[10px] text-muted-foreground rec-dot">● REC</span>
           <span className="font-serif-display text-2xl tracking-tight">
-            EditGuil<span className="italic text-muted-foreground">.</span>
+            {pseudo}<span className="italic text-muted-foreground">.</span>
           </span>
         </a>
 
@@ -68,9 +64,7 @@ export default function Header() {
         </nav>
 
         <div className="hidden md:flex items-center gap-6">
-          <span className="font-mono-label text-[10px] text-muted-foreground tabular-nums">
-            {time}
-          </span>
+          <span className="font-mono-label text-[10px] text-muted-foreground tabular-nums">{time}</span>
           <a
             href="#contact"
             data-testid="header-cta"
@@ -91,10 +85,7 @@ export default function Header() {
       </div>
 
       {open && (
-        <div
-          data-testid="mobile-menu"
-          className="md:hidden border-t border-white/10 bg-black/95 backdrop-blur-xl"
-        >
+        <div data-testid="mobile-menu" className="md:hidden border-t border-white/10 bg-black/95 backdrop-blur-xl">
           <div className="px-6 py-8 flex flex-col gap-6">
             {links.map((l) => (
               <a

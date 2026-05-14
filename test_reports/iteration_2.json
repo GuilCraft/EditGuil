@@ -1,0 +1,48 @@
+{
+  "summary": "Full backend + frontend test of EditGuil admin back-office (iteration 2). Backend: 26/26 pytest cases pass — covers root, public GET /api/content (all 13 sections), auth login (valid/wrong-pw/unknown-email/no-token/invalid-token/valid-token), /auth/me, PUT /api/content (401 w/o token, 200 + persistence verified via GET, restore), POST /api/contact still public, GET /api/admin/contacts (401 + 200 lists), DELETE /api/admin/contacts/{id} (401 + 200 + 404), POST /api/admin/upload (401 + valid PNG + invalid .exe), idempotent admin seed (3x login). Frontend Playwright: admin-login-form visible, wrong creds → error toast, valid creds → redirect /admin, all 14 tabs visible (13 sections + Messages reçus), hero name_line1 edit + save → success toast → public homepage in fresh tab shows new marker (full e2e content flow works), Messages tab loads, logout clears token and redirects to /admin/login, visiting /admin without token redirects to /admin/login. Image upload tested via backend (frontend ImageInput uses same endpoint).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "AdminDashboard.ContactsList",
+        "issue": "Invalid HTML — a <button type='button'> (delete) and an <a> (Répondre) are nested inside the outer accordion <button> (lines 525–556 of AdminDashboard.jsx). React logs hydration error: 'In HTML, <button> cannot be a descendant of <button>'. Functionality still works (e.stopPropagation), but it's invalid HTML and pollutes the console.",
+        "selector": "[data-testid^='contact-'] > button",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_admin_api.py",
+    "/app/backend/tests/test_contact_api.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Refactor AdminDashboard.ContactsList: replace outer <button> wrapping the row with a <div> + onClick (or use a separate small toggle button) so the delete <button> and 'Répondre' <a> aren't nested inside another <button>. Eliminates the React hydration warning at /admin → Messages reçus tab."
+  ],
+  "critical_code_review_comments": [
+    "server.py @app.on_event('startup') / 'shutdown' decorators are deprecated in FastAPI ≥0.93 — consider switching to a lifespan context manager.",
+    "PUT /api/content accepts an entirely free-form Dict[str, Any]; no schema validation means a malformed admin save could silently corrupt the singleton doc. Consider validating top-level section keys against an allow-list before upsert.",
+    "/api/admin/upload writes directly to disk under /app/backend/uploads — on container restart in some envs this dir is ephemeral. Also no size limit (UploadFile.read is not gated); add `Content-Length` check or stream-with-limit to prevent disk fill.",
+    "JWT_SECRET committed in /app/backend/.env — fine for preview but rotate before prod and ensure .env is gitignored.",
+    "verify_password swallows all exceptions and returns False silently — fine for security, but log the cause once at debug level for misformatted hashes diagnostics.",
+    "AdminDashboard.ContactsList nested <button> issue (above) — also from a11y standpoint screen-readers will skip the inner controls."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_admin_api.py (new — 20 admin/auth/content/upload tests)",
+    "/app/backend/tests/test_contact_api.py (replaced obsolete public-list assertion with 401/404/405 check, since GET /api/contacts was removed)",
+    "/app/test_reports/iteration_2.json (new)",
+    "/app/test_reports/pytest/pytest_results.xml (regenerated)"
+  ],
+  "success_rate": {"backend": "100% (26/26)", "frontend": "100% on tested flows (1 HTML-validity warning, non-blocking)"},
+  "test_credentials": "Admin: guildwen.marot@gmail.com / Guil13Craft (matches /app/memory/test_credentials.md)",
+  "seed_data_creation": "Created and then deleted 1 TEST_AdminFlow contact via backend tests; created and restored hero.name_line1 modification via both backend PUT and frontend save flow (final state = original 'Guildwen').",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend tests at /app/backend/tests/{test_admin_api.py,test_contact_api.py}. Run via: cd /app && pytest backend/tests/ -v --junitxml=/app/test_reports/pytest/pytest_results.xml. Admin endpoints all require Bearer token from POST /api/auth/login. Public GET /api/contacts no longer exists — only /api/admin/contacts (auth). The localStorage token key on frontend is 'editguil_token'. Hot reload works on both services; no .env changes required for retest.",
+  "rca of the issue": "Nested-button hydration warning RCA: AdminDashboard.ContactsList line 525 wraps the entire contact card in `<button onClick={toggle}>` to make it clickable; inside it, line 540 has `<a href='mailto:'>` and line 547 has `<button onClick={delete}>`. HTML spec forbids interactive descendants of <button>. Fix: replace the outer <button> with `<div role='button' tabIndex={0} onClick={toggle} onKeyDown={enterToggle}>` — preserves UX, removes nesting, also fixes screen-reader navigation."
+}
