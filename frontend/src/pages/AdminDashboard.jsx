@@ -522,9 +522,12 @@ function ContactsList() {
         <div className="space-y-3">
           {list.map((c) => (
             <div key={c.id} data-testid={`contact-${c.id}`} className="border border-border bg-card">
-              <button
+              <div
+                role="button"
+                tabIndex={0}
                 onClick={() => setOpened(opened === c.id ? null : c.id)}
-                className="w-full p-4 flex items-center justify-between gap-4 text-left hover:bg-background transition-colors"
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpened(opened === c.id ? null : c.id); } }}
+                className="w-full p-4 flex items-center justify-between gap-4 text-left hover:bg-background transition-colors cursor-pointer"
               >
                 <div className="flex items-center gap-4 min-w-0">
                   <Mail size={14} strokeWidth={1.5} className="shrink-0 text-muted-foreground" />
@@ -553,7 +556,7 @@ function ContactsList() {
                     <Trash2 size={12} strokeWidth={1.5} />
                   </button>
                 </div>
-              </button>
+              </div>
               {opened === c.id && (
                 <div className="border-t border-border p-5 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-sm">
                   <Info label="Chaîne / Lien" value={c.channel} />

@@ -1,66 +1,81 @@
-# EditGuil — Portfolio Monteur Vidéo (Guildwen Marot)
+# EditGuil — Portfolio + Back-office Admin (Guildwen Marot)
 
 ## Original Problem Statement
 > créer un portfolio de monteur vidéo pour trouver et avoir des client
 
 ## User Choices
-- Style visuel: Minimaliste & élégant (editorial, Swiss-inspired, dark cinematic)
-- Identité: **Guildwen MAROT** (nom) / **EditGuil** (pseudo)
-- Spécialité: Monteur vidéo YouTube (long-form + shorts + vlog)
-- Formulaire de contact: BOTH (MongoDB storage + Resend email)
-- Showreel: placeholders (à remplacer plus tard par le user)
+- Style: Minimaliste & élégant (editorial, dark cinematic, Swiss-inspired)
+- Identité: **Guildwen MAROT** / pseudo **EditGuil**
+- Spécialité: Monteur vidéo YouTube
+- Formulaire de contact: MongoDB + Resend email
 - Langue: Français
+- ✅ **Back-office admin pour modifier soi-même** (ajouté itération 2)
 
 ## Architecture
-- **Backend**: FastAPI + Motor (async MongoDB) + Resend SDK (async via asyncio.to_thread)
-  - `GET /api/` — health check
-  - `POST /api/contact` — store + send email to owner
-  - `GET /api/contacts` — list (no _id)
-- **Frontend**: React 19 + Tailwind + Shadcn (Accordion, Sonner toast)
-  - Single page `/` → `Portfolio.jsx`
-  - 12 sections composed from `/app/frontend/src/components/sections/`
-- **Design tokens** (from /app/design_guidelines.json):
-  - Bg `#0A0A0A`, text `#F5F5F0`, muted `#8C8C8C`, border `#2A2A2A`
-  - Typo: Cormorant Garamond (headings, italic accents) + Outfit (body) + JetBrains Mono (labels uppercase tracking-wide)
-  - rounded-none everywhere, film grain overlay, vignette, marquee, frame corners on media
+- **Backend** FastAPI + Motor (async MongoDB) + Resend SDK
+- **Auth**: JWT (HS256, 7 jours) en localStorage, Bearer Authorization
+- **Content**: singleton MongoDB doc `content/_singleton=portfolio` avec toutes les sections éditables
+- **Uploads**: static files `/app/backend/uploads/` servis via `/api/uploads/...`
 
-## User Personas
-1. **YouTube creator** (300K–1M subs) cherchant un monteur fiable pour long-form
-2. **Brand / DTC** cherchant un vidéaste cinématique pour storytelling
-3. **Gaming / lifestyle creator** ayant besoin de Shorts performants
+### API Endpoints
+**Public**
+- `GET /api/` — health
+- `GET /api/content` — retourne tout le contenu du portfolio
+- `POST /api/contact` — soumission formulaire de contact
 
-## What's Implemented (2026-05-13)
-- Hero éditorial massif (Cormorant Garamond, layout asymétrique 9/3 cols)
-- Marquee infini des spécialités
-- Showreel placeholder avec frame corners + play/pause toggle
-- Portfolio Tetris grid (7 projets, hover grayscale → color)
-- Services grid (6 services, border-grid pattern)
-- Process (5 étapes) en grid divisée
-- Stats (12M+ vues / 240+ vidéos / 48h / 98%)
-- About avec portrait + skills tags
-- Testimonials (3 quotes, 3-col)
-- Pricing (Short / Long-form / Abonnement — Long-form highlighted)
-- FAQ Accordion (6 questions)
-- Contact form (nom, email, channel, type projet, budget, message) → POST /api/contact → Resend email + Mongo
-- Footer
-- Header sticky avec horloge UTC + mobile menu
-- Toaster sonner (style brutaliste cohérent)
+**Auth**
+- `POST /api/auth/login` — `{email,password}` → `{token, user}`
+- `GET /api/auth/me` — Bearer required
 
-## Test Status
-- Backend: 100% — 6/6 pytest cases (health, CRUD, validation 422, Mongo persistence, _id excluded, Resend email_sent=true)
-- Frontend: 100% — Playwright tested form submission, FAQ accordion, mobile menu, all section anchors
+**Admin (Bearer required)**
+- `PUT /api/content` — `{data:{...}}` upsert singleton
+- `GET /api/admin/contacts` — liste des soumissions
+- `DELETE /api/admin/contacts/{id}` — supprimer une soumission
+- `POST /api/admin/upload` — multipart `file` → `{url, filename}`
+
+### Frontend Routes
+- `/` — portfolio public (fetch /api/content via ContentProvider)
+- `/admin/login` — formulaire de connexion
+- `/admin` — dashboard protégé (14 onglets)
+
+### Admin Dashboard Tabs
+Accueil · Bandeau · Showreel · Projets · Services · Process · Stats · À propos · Témoignages · Tarifs · FAQ · Contact · Footer · **Messages reçus**
+
+Pour chaque section : champs texte/textarea, image URL + upload, listes avec add/remove/reorder.
+
+## What's Implemented
+### Iteration 1 (2026-05-13)
+- 12 sections : Hero, Marquee, Showreel, PortfolioGrid, Services, Process, Stats, About, Testimonials, Pricing, FAQ, Contact, Footer
+- Contact form → MongoDB + Resend email à guildwen.marot@gmail.com
+- Tests : 100% backend (6/6) + 100% frontend
+
+### Iteration 2 (2026-05-14)
+- ✅ Auth JWT (admin seed idempotent : guildwen.marot@gmail.com / Guil13Craft)
+- ✅ ContentProvider : sections lisent depuis /api/content
+- ✅ Dashboard /admin avec 14 onglets éditables
+- ✅ Upload d'images (jpg/png/webp/gif) avec preview
+- ✅ ListEditor pour add/remove/reorder éléments
+- ✅ Vue Messages reçus avec aperçu + delete + reply mailto
+- ✅ Embed YouTube auto sur Showreel + Projets (lien `youtube_url`)
+- ✅ Tests : 26/26 backend + e2e admin flow validé
+- ✅ Fix HTML : remplacé `<button>` parent par `<div role=button>` dans ContactsList
+
+## Test Credentials
+Voir `/app/memory/test_credentials.md`
+- Admin : `guildwen.marot@gmail.com` / `Guil13Craft`
 
 ## Prioritized Backlog
 - **P1**:
-  - Remplacer les liens vidéos YouTube placeholders par les vrais embeds (iframe YouTube/Vimeo)
-  - Vérifier un domaine custom sur Resend pour livrer les emails ailleurs que sur le compte Resend
-  - Ajouter un dashboard admin (auth-protected) pour consulter `GET /api/contacts`
+  - Page de changement de mot de passe depuis le dashboard
+  - Validation du schéma de contenu (allow-list des sections) côté PUT /api/content
+  - Limite de taille d'upload (10MB max)
+  - Rate limit / hCaptcha sur POST /api/contact
 - **P2**:
-  - Rate limit / hCaptcha sur `POST /api/contact`
-  - SEO meta tags (og:image, description, title custom)
-  - Page case-study individuelle par projet
-  - Intégration Stripe pour deposit / acompte
+  - Vérifier un domaine custom sur Resend (livrer à n'importe quel destinataire)
+  - Page case-study individuelle par projet (slug-based)
+  - Export CSV des messages reçus
+  - SEO meta tags dynamiques depuis le contenu admin
 - **P3**:
   - Multi-langue EN/FR
-  - Animation Framer Motion plus avancée (Lenis smooth scroll)
-  - Newsletter / lead magnet
+  - Stripe deposit sur "Demander un devis"
+  - Lifespan handler à la place de @app.on_event (deprecated)
